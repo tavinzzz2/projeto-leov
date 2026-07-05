@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leov Studio Creat — Designer Gráfico e Editor</title>
+<meta name="description" content="Designer gráfico com mais de 300 clientes atendidos. Especialista em edição de fotos e posts para redes sociais.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0a0a0a;
+    --black-soft:#121212;
+    --black-card:#181818;
+    --red:#e21c1c;
+    --red-bright:#ff2b2b;
+    --red-dark:#7a0d0d;
+    --orange:#ff7a1a;
+    --white:#f5f5f5;
+    --gray:#a8a8a8;
+    --gray-dim:#7d7d7d;
+    --border:rgba(255,255,255,0.08);
+    --radius:16px;
+    --ff-display:'Poppins', sans-serif;
+    --ff-body:'Inter', sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--black);
+    color:var(--white);
+    font-family:var(--ff-body);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  img,svg{display:block;max-width:100%;}
+  a{text-decoration:none;color:inherit;}
+  ul{list-style:none;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;}
+  .container{max-width:1180px;margin:0 auto;padding:0 24px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--ff-display);font-weight:600;font-size:13px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--red-bright);
+    margin-bottom:14px;
+  }
+  .eyebrow::before{content:"";width:22px;height:2px;background:var(--red-bright);display:inline-block;}
+  h1,h2,h3{font-family:var(--ff-display);font-weight:800;line-height:1.08;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:16px 34px;border-radius:999px;font-family:var(--ff-display);
+    font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg,var(--red-bright),var(--red-dark));
+    color:#fff;box-shadow:0 8px 24px rgba(226,28,28,.35);
+  }
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(226,28,28,.5);}
+  .btn-outline{
+    background:transparent;border:1.5px solid rgba(255,255,255,.25);color:#fff;
+  }
+  .btn-outline:hover{border-color:#fff;background:rgba(255,255,255,.06);}
+  .btn-dark{background:var(--black);color:#fff;}
+  .btn-dark:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(0,0,0,.5);}
+
+  /* ---------- reveal animation ---------- */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+  .reveal-delay-1{transition-delay:.1s;}
+  .reveal-delay-2{transition-delay:.2s;}
+  .reveal-delay-3{transition-delay:.3s;}
+
+  /* ---------- header ---------- */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    padding:18px 0;transition:background .35s ease, padding .35s ease, box-shadow .35s ease;
+  }
+  header.scrolled{
+    background:rgba(10,10,10,.85);backdrop-filter:blur(14px);
+    padding:12px 0;box-shadow:0 4px 24px rgba(0,0,0,.4);
+    border-bottom:1px solid var(--border);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;}
+  .logo{display:flex;align-items:center;gap:10px;font-family:var(--ff-display);font-weight:800;font-size:16px;letter-spacing:.05em;}
+  .logo-mark{
+    width:38px;height:38px;border-radius:10px;
+    background:linear-gradient(135deg,var(--red-bright),var(--red-dark));
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:900;color:#fff;flex-shrink:0;
+  }
+  .nav-links{display:flex;align-items:center;gap:36px;}
+  .nav-links a{
+    font-size:14px;font-weight:600;color:var(--gray);
+    position:relative;padding:4px 0;transition:color .25s ease;
+  }
+  .nav-links a::after{
+    content:"";position:absolute;left:0;bottom:-2px;width:0;height:2px;
+    background:var(--red-bright);transition:width .25s ease;
+  }
+  .nav-links a:hover, .nav-links a.active{color:#fff;}
+  .nav-links a.active::after, .nav-links a:hover::after{width:100%;}
+  .nav-right{display:flex;align-items:center;gap:18px;}
+  .burger{display:none;flex-direction:column;gap:5px;width:26px;z-index:1100;}
+  .burger span{height:2px;width:100%;background:#fff;border-radius:2px;transition:.3s;}
+  .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .burger.open span:nth-child(2){opacity:0;}
+  .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;min-height:100vh;display:flex;align-items:center;
+    padding:150px 0 90px;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% 20%, rgba(226,28,28,.16), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 90% 60%, rgba(255,122,26,.10), transparent 60%),
+      var(--black);
+    overflow:hidden;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center;}
+  .hero h1{font-size:clamp(40px,5.4vw,68px);color:#fff;margin-bottom:22px;}
+  .hero h1 span{color:var(--red-bright);}
+  .hero p{color:var(--gray);font-size:16.5px;max-width:480px;margin-bottom:34px;}
+  .hero-stats{display:flex;gap:34px;margin-top:38px;}
+  .hero-stat b{display:block;font-family:var(--ff-display);font-size:26px;font-weight:800;color:#fff;}
+  .hero-stat span{font-size:12.5px;color:var(--gray-dim);text-transform:uppercase;letter-spacing:.06em;}
+
+  .hero-visual{
+  position:relative;
+  display:flex;
+  justify-content:center;
+}
+
+.photo-frame{
+  position:relative;
+  width:100%;
+  max-width:420px;
+  aspect-ratio:3/4;
+  border-radius:22px;
+  background:
+    linear-gradient(160deg,#1c1c1c 0%,#0d0d0d 55%,#1a0505 100%);
+  border:1px solid var(--border);
+  overflow:hidden;
+  box-shadow:0 30px 70px rgba(0,0,0,.55);
+}
+
+.photo-frame::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(226,28,28,.22), transparent 45%),
+    radial-gradient(circle at 75% 80%, rgba(255,122,26,.16), transparent 45%),
+    linear-gradient(180deg, rgba(10,10,10,0) 55%, rgba(10,10,10,.65) 100%);
+}
+
+.hero-photo-bg{
+    position:absolute;
+    inset:0;
+    background:red !important;
+}
+  .neon-bar{
+    position:absolute;top:8%;right:-2px;width:6px;height:84%;border-radius:6px;
+    background:linear-gradient(180deg,var(--orange),var(--red-bright));
+    box-shadow:0 0 24px 4px rgba(255,122,26,.6);z-index:3;
+  }
+  .float-badge{
+    position:absolute;bottom:-24px;left:-24px;background:var(--black-card);
+    border:1px solid var(--border);border-radius:14px;padding:16px 20px;
+    display:flex;align-items:center;gap:12px;box-shadow:0 16px 40px rgba(0,0,0,.5);z-index:4;
+  }
+  .float-badge .dot{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--red-bright),var(--red-dark));display:flex;align-items:center;justify-content:center;font-weight:800;font-family:var(--ff-display);font-size:13px;}
+  .float-badge b{display:block;font-family:var(--ff-display);font-size:15px;}
+  .float-badge span{font-size:11.5px;color:var(--gray-dim);}
+  .float-chip{
+    position:absolute;top:-18px;right:14px;background:var(--black-card);
+    border:1px solid var(--border);border-radius:999px;padding:9px 16px;
+    font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px;
+    box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:4;
+  }
+  .float-chip .pulse{width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 rgba(61,220,132,.6);animation:pulse 2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,220,132,.6);}70%{box-shadow:0 0 0 8px rgba(61,220,132,0);}100%{box-shadow:0 0 0 0 rgba(61,220,132,0);}}
+
+  /* ---------- section shared ---------- */
+  section{position:relative;padding:110px 0;}
+  .section-head{max-width:640px;margin:0 auto 56px;text-align:center;}
+  .section-head h2{font-size:clamp(28px,3.4vw,42px);color:#fff;margin-bottom:14px;}
+  .section-head p{color:var(--gray);font-size:15.5px;}
+
+  /* ---------- sobre ---------- */
+  .sobre{background:var(--black-soft);}
+  .sobre-collage{
+    position:absolute;inset:0;background-image:url('/images/sobre-bg.jpeg');
+    background-size:cover;background-position:center;opacity:.22;filter:blur(1px) saturate(1.1);
+    pointer-events:none;
+  }
+  .sobre-collage::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg, var(--black-soft) 0%, rgba(18,18,18,.55) 35%, var(--black-soft) 100%);
+  }
+  .sobre .container{position:relative;z-index:2;}
+  .sobre-content{max-width:720px;margin:0 auto;text-align:center;}
+  .sobre-content h2{font-size:clamp(28px,3.6vw,44px);color:#fff;margin-bottom:20px;}
+  .sobre-content h2 em{font-style:normal;color:var(--red-bright);}
+  .sobre-content p{color:var(--gray);font-size:16px;}
+
+  /* ---------- pricing ---------- */
+  .planos{
+    background:linear-gradient(150deg,#c81414 0%, var(--red) 35%, #8f0f0f 100%);
+  }
+  .planos .section-head h2{color:#fff;}
+  .planos .section-head p{color:rgba(255,255,255,.82);}
+  .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+  .plan-card{
+    background:rgba(10,10,10,.55);border:1px solid rgba(255,255,255,.14);
+    border-radius:var(--radius);padding:34px 28px;backdrop-filter:blur(6px);
+    display:flex;flex-direction:column;transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+  }
+  .plan-card:hover{transform:translateY(-8px);box-shadow:0 22px 50px rgba(0,0,0,.4);border-color:rgba(255,255,255,.3);}
+  .plan-card.popular{background:var(--black);border-color:var(--orange);transform:scale(1.045);}
+  .plan-card.popular:hover{transform:scale(1.045) translateY(-8px);}
+  .plan-tag{
+    align-self:flex-start;font-size:11.5px;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);
+    padding:6px 14px;border-radius:999px;margin-bottom:18px;
+  }
+  .plan-card.popular .plan-tag{background:linear-gradient(135deg,var(--orange),var(--red-bright));}
+  .plan-price{font-family:var(--ff-display);font-size:40px;font-weight:800;color:#fff;margin-bottom:4px;}
+  .plan-price span{font-size:15px;font-weight:500;color:var(--gray);}
+  .plan-discount{font-size:12.5px;color:var(--orange);font-weight:600;margin-bottom:22px;}
+  .plan-intro{font-size:13px;color:var(--gray);margin-bottom:18px;}
+  .plan-features{flex:1;margin-bottom:28px;}
+  .plan-features li{
+    display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#e6e6e6;
+    padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .plan-features li svg{flex-shrink:0;margin-top:2px;color:var(--orange);}
+  .plan-card .btn{width:100%;}
+  .plans-cta{text-align:center;margin-top:48px;}
+
+  /* ---------- portfolio ---------- */
+  .portfolio{background:var(--black);}
+  .portfolio-top{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-bottom:64px;}
+  .portfolio-top h2{font-size:clamp(26px,3.2vw,38px);color:#fff;margin-bottom:18px;}
+  .portfolio-top p{color:var(--gray);font-size:15.5px;}
+  .portfolio-body{display:grid;grid-template-columns:56px 1fr;gap:28px;align-items:start;}
+  .toolbar{
+    background:var(--black-card);border:1px solid var(--border);border-radius:14px;
+    padding:14px 10px;display:flex;flex-direction:column;gap:14px;align-items:center;
+    position:sticky;top:110px;
+  }
+  .toolbar .tool{
+    width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    color:var(--gray);transition:.25s;
+  }
+  .toolbar .tool:hover, .toolbar .tool.active{background:var(--red);color:#fff;}
+  .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .gallery-item{
+    position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:3/4;
+    cursor:pointer;border:1px solid var(--border);
+  }
+  .gallery-item .g-bg{position:absolute;inset:0;transition:transform .5s ease;
+    background-size:cover;background-position:center;}
+  .gallery-item:hover .g-bg{transform:scale(1.08);}
+  .gallery-item .g-overlay{
+    position:absolute;inset:0;background:linear-gradient(0deg, rgba(0,0,0,.85) 0%, transparent 55%);
+    display:flex;flex-direction:column;justify-content:flex-end;padding:22px;z-index:2;
+  }
+  .gallery-item .g-icon{
+    position:absolute;top:20px;right:20px;z-index:2;width:38px;height:38px;border-radius:50%;
+    background:rgba(0,0,0,.4);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;
+  }
+  .g-overlay b{font-family:var(--ff-display);font-size:16px;color:#fff;display:block;margin-bottom:4px;}
+  .g-overlay span{font-size:12.5px;color:var(--gray);}
+
+  /* lightbox */
+  .lightbox{
+    position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:2000;
+    display:none;align-items:center;justify-content:center;padding:30px;
+    opacity:0;transition:opacity .3s ease;
+  }
+  .lightbox.open{display:flex;opacity:1;}
+  .lightbox-card{
+    background:var(--black-card);border-radius:20px;max-width:520px;width:100%;
+    overflow:hidden;border:1px solid var(--border);transform:scale(.92);transition:transform .3s ease;
+  }
+  .lightbox.open .lightbox-card{transform:scale(1);}
+  .lightbox-visual{height:260px;position:relative;}
+  .lightbox-body{padding:26px 28px 30px;}
+  .lightbox-body h3{font-size:20px;color:#fff;margin-bottom:8px;}
+  .lightbox-body p{color:var(--gray);font-size:14px;}
+  .lightbox-close{
+    position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;
+    background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;color:#fff;z-index:3;
+  }
+
+  /* ---------- depoimentos ---------- */
+  .depoimentos{background:linear-gradient(150deg,#8f0f0f 0%, var(--red) 55%, #c81414 100%);}
+  .depoimentos .section-head h2{color:#fff;}
+  .depoimentos .section-head p{color:rgba(255,255,255,.82);}
+  .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+  .testi-card{
+    background:rgba(10,10,10,.55);border:1px solid rgba(255,255,255,.14);
+    border-radius:var(--radius);padding:30px 26px;backdrop-filter:blur(6px);
+    display:flex;flex-direction:column;transition:transform .3s ease;
+  }
+  .testi-card:hover{transform:translateY(-6px);}
+  .testi-quote{color:#eee;font-size:14.5px;margin-bottom:24px;flex:1;}
+  .testi-stars{display:flex;gap:3px;margin-bottom:16px;color:var(--orange);}
+  .testi-person{display:flex;align-items:center;gap:12px;}
+  .avatar{
+    width:46px;height:46px;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-family:var(--ff-display);
+    font-weight:700;font-size:15px;color:#fff;
+  }
+  .testi-person b{display:block;font-size:14.5px;color:#fff;}
+  .testi-person span{font-size:12.5px;color:rgba(255,255,255,.65);}
+
+  /* ---------- contato ---------- */
+  .contato{background:var(--black);}
+  .contato-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+  .contato h2{font-size:clamp(30px,3.8vw,48px);color:#fff;margin-bottom:16px;}
+  .contato h2 span{color:var(--red-bright);}
+  .contato > .container > .contato-grid > div:first-child p{color:var(--gray);font-size:15.5px;margin-bottom:30px;max-width:420px;}
+  .contact-rows{display:flex;flex-direction:column;gap:22px;}
+  .contact-row{display:flex;align-items:center;gap:16px;}
+  .contact-row .icon{
+    width:48px;height:48px;border-radius:12px;background:var(--black-card);
+    border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--red-bright);
+    flex-shrink:0;
+  }
+  .contact-row b{display:block;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-dim);margin-bottom:3px;}
+  .contact-row a, .contact-row span.val{font-size:15.5px;font-weight:600;color:#fff;}
+  .contact-row a{transition:color .2s;}
+  .contact-row a:hover{color:var(--red-bright);}
+  .contact-row .copy-btn{margin-left:auto;color:var(--gray);opacity:0;transition:opacity .2s;}
+  .contact-row:hover .copy-btn{opacity:1;}
+  .socials{display:flex;gap:12px;margin-top:8px;}
+  .socials a{
+    width:42px;height:42px;border-radius:50%;background:var(--black-card);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;transition:.25s;
+  }
+  .socials a:hover{background:var(--red);transform:translateY(-4px);}
+  .contact-form{
+    background:var(--black-card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:34px;
+  }
+  .contact-form h3{font-size:18px;color:#fff;margin-bottom:22px;}
+  .form-row{margin-bottom:16px;}
+  .form-row label{display:block;font-size:12px;color:var(--gray-dim);margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em;}
+  .form-row input, .form-row textarea{
+    width:100%;background:var(--black);border:1px solid var(--border);border-radius:10px;
+    padding:13px 14px;color:#fff;font-family:inherit;font-size:14px;transition:border-color .2s;
+  }
+  .form-row input:focus, .form-row textarea:focus{outline:none;border-color:var(--red-bright);}
+  .form-row textarea{resize:vertical;min-height:90px;}
+  .form-msg{font-size:13px;margin-top:12px;min-height:18px;}
+  .form-msg.success{color:#3ddc84;}
+  .form-msg.error{color:#ff6b6b;}
+
+  /* ---------- footer ---------- */
+  footer{background:var(--black);border-top:1px solid var(--border);padding:26px 0;}
+  .footer-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+  .footer-row p{font-size:13px;color:var(--gray-dim);}
+  .footer-row a{font-size:13px;color:var(--gray-dim);}
+  .footer-row a:hover{color:#fff;}
+
+  /* ---------- back to top ---------- */
+  .totop{
+    position:fixed;bottom:26px;right:26px;width:48px;height:48px;border-radius:50%;
+    background:linear-gradient(135deg,var(--red-bright),var(--red-dark));color:#fff;
+    display:flex;align-items:center;justify-content:center;z-index:900;
+    box-shadow:0 12px 30px rgba(226,28,28,.4);opacity:0;pointer-events:none;
+    transform:translateY(14px);transition:.3s;
+  }
+  .totop.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--black-card);border:1px solid var(--border);color:#fff;
+    padding:13px 22px;border-radius:999px;font-size:13.5px;font-weight:600;
+    display:flex;align-items:center;gap:8px;z-index:2100;opacity:0;transition:.3s;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:960px){
+    .hero-grid{grid-template-columns:1fr;}
+    .hero-visual{order:-1;margin-bottom:20px;}
+    .photo-frame{max-width:320px;margin:0 auto;}
+    .plans-grid{grid-template-columns:1fr;}
+    .plan-card.popular{transform:none;}
+    .plan-card.popular:hover{transform:translateY(-8px);}
+    .portfolio-top{grid-template-columns:1fr;gap:24px;}
+    .gallery{grid-template-columns:1fr 1fr;}
+    .toolbar{display:none;}
+    .portfolio-body{grid-template-columns:1fr;}
+    .testi-grid{grid-template-columns:1fr;}
+    .contato-grid{grid-template-columns:1fr;gap:40px;}
+  }
+  @media (max-width:720px){
+    .nav-links{
+      position:fixed;top:0;right:0;height:100vh;width:78%;max-width:320px;
+      background:rgba(10,10,10,.98);backdrop-filter:blur(14px);
+      flex-direction:column;justify-content:center;align-items:flex-start;
+      gap:28px;padding:40px;transform:translateX(100%);transition:transform .35s ease;
+      border-left:1px solid var(--border);
+    }
+    .nav-links.open{transform:translateX(0);}
+    .nav-right .btn-outline{display:none;}
+    .burger{display:flex;}
+    .gallery{grid-template-columns:1fr;}
+    .hero-stats{flex-wrap:wrap;gap:24px;}
+    section{padding:76px 0;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important;transition-duration:0.001ms !important;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header id="siteHeader">
+  <div class="container nav">
+    <a href="#home" class="logo">
+      <span class="logo-mark">JL</span>
+      LEOV&nbsp;CREAT
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#home" data-nav>Início</a>
+      <a href="#sobre" data-nav>Sobre</a>
+      <a href="#planos" data-nav>Planos</a>
+      <a href="#portfolio" data-nav>Portfólio</a>
+      <a href="#depoimentos" data-nav>Depoimentos</a>
+      <a href="#contato" data-nav>Contato</a>
+    </nav>
+    <div class="nav-right">
+      <a href="#contato" class="btn btn-outline">Fale Comigo</a>
+      <button class="burger" id="burger" aria-label="Abrir menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="home">
+  <div class="container hero-grid">
+    <div class="reveal in">
+      <span class="eyebrow">Portfólio &amp; Serviços</span>
+      <h1>Designer gráfico<br>e <span>editor.</span></h1>
+      <p>Designer gráfico com mais de 300 clientes atendidos, especialista em edição de fotos e posts. Formação pela MK Academy e qualidade profissional por um preço acessível.</p>
+      <a href="#planos" class="btn btn-primary">Saber Mais</a>
+      <div class="hero-stats">
+        <div class="hero-stat"><b>300+</b><span>Clientes atendidos</span></div>
+        <div class="hero-stat"><b>3 anos</b><span>De experiência</span></div>
+        <div class="hero-stat"><b>4.9/5</b><span>Avaliação média</span></div>
+      </div>
+    </div>
+    <div class="hero-visual reveal in reveal-delay-1">
+      <div class="photo-frame">
+        <div class="hero-photo-bg" role="img" aria-label="Leov, designer gráfico e editor de imagens"></div>
+        <div class="neon-bar"></div>
+        <div class="float-chip"><span class="pulse"></span> Disponível para novos projetos</div>
+        <div class="float-badge">
+          <div class="dot">JL</div>
+          <div><b>Leov Creat</b><span>Studio de design</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SOBRE ================= -->
+<section class="sobre" id="sobre">
+  <div class="sobre-collage"></div>
+  <div class="container">
+    <div class="sobre-content reveal">
+      <span class="eyebrow" style="justify-content:center;">Quem somos</span>
+      <h2>Sobre a <em>Leov</em> Studio Creat</h2>
+      <p>Na LEOV, transformamos ideias em designs que geram resultados. Especialistas em flyers, posts para redes sociais, logotipos, identidade visual e edição de fotos, entregamos qualidade profissional, criatividade e preços acessíveis para destacar sua marca.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLANOS ================= -->
+<section class="planos" id="planos">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>O Plano Perfeito para as suas Necessidades</h2>
+      <p>Nossos preços transparentes facilitam a busca por um plano que se encaixe nas suas restrições financeiras.</p>
+    </div>
+    <div class="plans-grid">
+      <div class="plan-card reveal reveal-delay-1">
+        <span class="plan-tag">Basic</span>
+        <div class="plan-price">R$250<span>/mês</span></div>
+        <div class="plan-discount">Até 5% em desconto anual</div>
+        <p class="plan-intro">Inclui:</p>
+        <ul class="plan-features">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 8 artes personalizadas</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 4 stories personalizados</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Edição de até 5 fotos</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Entrega com qualidade garantida</li>
+        </ul>
+        <a href="#contato" class="btn btn-outline plan-select">Escolher plano</a>
+      </div>
+
+      <div class="plan-card popular reveal reveal-delay-2">
+        <span class="plan-tag">★ Mais popular · Intermediário</span>
+        <div class="plan-price">R$350<span>/mês</span></div>
+        <div class="plan-discount">Até 15% em desconto anual</div>
+        <p class="plan-intro">Tudo do pacote intermediário:</p>
+        <ul class="plan-features">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 12 artes personalizadas</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 8 stories personalizados</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Edição de até 10 fotos</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Capa para destacar seu perfil</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Peças promocionais</li>
+        </ul>
+        <a href="#contato" class="btn btn-primary plan-select">Escolher plano</a>
+      </div>
+
+      <div class="plan-card reveal reveal-delay-3">
+        <span class="plan-tag">Avançado</span>
+        <div class="plan-price">R$500<span>/mês</span></div>
+        <div class="plan-discount">Até 20% em desconto anual</div>
+        <p class="plan-intro">Tudo do pacote avançado:</p>
+        <ul class="plan-features">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Criação de identidade visual</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 20 artes personalizadas</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 12 stories personalizados</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Edição de até 20 fotos</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Capa profissional + banners</li>
+        </ul>
+        <a href="#contato" class="btn btn-outline plan-select">Escolher plano</a>
+      </div>
+    </div>
+    <div class="plans-cta reveal">
+      <a href="#contato" class="btn btn-dark">Escolha a melhor opção para você</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PORTFOLIO ================= -->
+<section class="portfolio" id="portfolio">
+  <div class="container">
+    <div class="portfolio-top">
+      <div class="reveal">
+        <span class="eyebrow">O que eu faço</span>
+        <h2>Edição, retoque e criação de artes</h2>
+      </div>
+      <div class="reveal reveal-delay-1">
+        <p>Edição de fotos, retoques, montagens, remoção de objetos, junção de pessoas em uma única foto e criação de imagens personalizadas para suas redes sociais. Se você tem uma ideia, eu transformo em arte! Tudo com atenção aos detalhes, entrega rápida e um preço que cabe no seu bolso.</p>
+      </div>
+    </div>
+
+    <div class="portfolio-body">
+      <div class="toolbar reveal">
+        <div class="tool active" title="Mover"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg></div>
+        <div class="tool" title="Recorte"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg></div>
+        <div class="tool" title="Pincel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg></div>
+        <div class="tool" title="Camadas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
+        <div class="tool" title="Texto"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg></div>
+        <div class="tool" title="Cor"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69s6 6.44 6 10.31a6 6 0 0 1-12 0c0-3.87 6-10.31 6-10.31z"/></svg></div>
+      </div>
+
+      <div class="gallery">
+        <div class="gallery-item reveal" data-title="Identidade Visual" data-desc="Criação de logotipo, paleta de cores e diretrizes de marca para redes sociais." data-img="/images/portfolio-red.png">
+          <div class="g-bg" style="background-image:url('/images/portfolio-red.png');"></div>
+          <div class="g-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></div>
+          <div class="g-overlay"><b>Identidade Visual</b><span>Branding &amp; logotipo</span></div>
+        </div>
+        <div class="gallery-item reveal reveal-delay-1" data-title="Edição de Fotos" data-desc="Retoque profissional, correção de cor e composição de imagens para catálogos e perfis." data-img="/images/portfolio-green.png">
+          <div class="g-bg" style="background-image:url('/images/portfolio-green.png');"></div>
+          <div class="g-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></div>
+          <div class="g-overlay"><b>Edição de Fotos</b><span>Retoque &amp; composição</span></div>
+        </div>
+        <div class="gallery-item reveal reveal-delay-2" data-title="Posts para Redes Sociais" data-desc="Artes, stories e capas pensadas para engajar e destacar sua marca no feed." data-img="/images/portfolio-blue.png">
+          <div class="g-bg" style="background-image:url('/images/portfolio-blue.png');"></div>
+          <div class="g-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></div>
+          <div class="g-overlay"><b>Posts para Redes</b><span>Feed &amp; stories</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEPOIMENTOS ================= -->
+<section class="depoimentos" id="depoimentos">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Depoimentos</h2>
+      <p>O que meus clientes dizem sobre o trabalho da Leov Studio Creat.</p>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card reveal reveal-delay-1">
+        <div class="testi-stars"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <p class="testi-quote">"Trabalhar com você é muito fácil, consegue entender exatamente o que eu imagino para os posts e transforma minhas ideias em artes ainda melhores do que eu esperava. Agilidade, qualidade e muita atenção aos detalhes!"</p>
+        <div class="testi-person">
+          <div class="avatar" style="background:linear-gradient(135deg,#ff7a1a,#e21c1c);">P</div>
+          <div><b>Pedro</b><span>Social Media</span></div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-2">
+        <div class="testi-stars"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <p class="testi-quote">"As edições das minhas fotos ficaram extremamente incríveis! Tudo foi feito com muito cuidado e profissionalismo, mantendo minha aparência natural e valorizando minha imagem. Trabalho rápido e resultado acima do esperado."</p>
+        <div class="testi-person">
+          <div class="avatar" style="background:linear-gradient(135deg,#3d5afe,#7a0d0d);">A</div>
+          <div><b>Anna</b><span>Gestão de Pessoas</span></div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-3">
+        <div class="testi-stars"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <p class="testi-quote">"Quero agradecer pelo excelente trabalho na identidade visual do meu Instagram. O perfil ficou muito mais profissional, organizado e com a minha cara. Recebi vários elogios e fiquei muito satisfeito com o resultado!"</p>
+        <div class="testi-person">
+          <div class="avatar" style="background:linear-gradient(135deg,#1fae6b,#0a3d24);">J</div>
+          <div><b>Joel</b><span>Técnico de Ar Condicionado</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTATO ================= -->
+<section class="contato" id="contato">
+  <div class="container contato-grid">
+    <div class="reveal">
+      <span class="eyebrow">Vamos conversar</span>
+      <h2>Contact <span>Us</span></h2>
+      <p>Tem um projeto em mente? Me chama e vamos transformar sua ideia em uma arte de verdade.</p>
+      <div class="contact-rows">
+        <div class="contact-row">
+          <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+          <div>
+            <b>Telefone</b>
+            <a href="https://wa.me/+558499268616" target="_blank" rel="noopener"></a>(84)9926-8616 </a>
+          </div>
+          <button class="copy-btn" data-copy=" (84)9926-8616" title="Copiar número"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        </div>
+        <div class="contact-row">
+          <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22 6 12 13 2 6"/></svg></div>
+          <div>
+            <b>Email</b>
+            <a href="mailto:contato@leovcreat.com">contato@leovcreat.com</a>
+          </div>
+          <button class="copy-btn" data-copy="contato@leovcreat.com" title="Copiar email"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        </div>
+        <div class="contact-row">
+          <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg></div>
+          <div>
+            <b>Redes sociais</b>
+            <span class="val">@leovcreat</span>
+          </div>
+        </div>
+      </div>
+      <div class="socials">
+        <a href="https://instagram.com/" target="_blank" rel="noopener" title="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+        <a href="https://facebook.com/" target="_blank" rel="noopener" title="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        <a href="https://wa.me/5584992688616" target="_blank" rel="noopener" title="WhatsApp"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
+      </div>
+    </div>
+
+    <form class="contact-form reveal reveal-delay-1" id="contactForm">
+      <h3>Peça um orçamento</h3>
+      <div class="form-row">
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+      </div>
+      <div class="form-row">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="seuemail@exemplo.com" required>
+      </div>
+      <div class="form-row">
+        <label for="mensagem">Mensagem</label>
+        <textarea id="mensagem" name="mensagem" placeholder="Conte um pouco sobre o seu projeto..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Enviar mensagem</button>
+      <p class="form-msg" id="formMsg"></p>
+    </form>
+  </div>
+</section>
+
+<!-- ================= LIGHTBOX ================= -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-card">
+    <div class="lightbox-visual" id="lightboxVisual">
+      <div class="lightbox-close" id="lightboxClose"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    </div>
+    <div class="lightbox-body">
+      <h3 id="lightboxTitle">Título</h3>
+      <p id="lightboxDesc">Descrição.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="container footer-row">
+    <p>© <span id="year"></span> Leov Studio Creat. Todos os direitos reservados.</p>
+    <a href="#home">Voltar ao topo ↑</a>
+  </div>
+</footer>
+
+<button class="totop" id="toTop" title="Voltar ao topo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></button>
+<div class="toast" id="toast"></div>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ---- header scroll state ---- */
+const header = document.getElementById('siteHeader');
+const toTopBtn = document.getElementById('toTop');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  header.classList.toggle('scrolled', y > 30);
+  toTopBtn.classList.toggle('show', y > 500);
+});
+toTopBtn.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+/* ---- mobile menu ---- */
+const burger = document.getElementById('burger');
+const navLinks = document.getElementById('navLinks');
+burger.addEventListener('click', () => {
+  burger.classList.toggle('open');
+  navLinks.classList.toggle('open');
+});
+document.querySelectorAll('#navLinks a').forEach(a => a.addEventListener('click', () => {
+  burger.classList.remove('open');
+  navLinks.classList.remove('open');
+}));
+
+/* ---- scroll spy ---- */
+const sections = document.querySelectorAll('section[id]');
+const navA = document.querySelectorAll('[data-nav]');
+const spyObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navA.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id));
+    }
+  });
+}, { rootMargin: '-40% 0px -50% 0px' });
+sections.forEach(s => spyObserver.observe(s));
+
+/* ---- reveal on scroll ---- */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+/* ---- lightbox ---- */
+const lightbox = document.getElementById('lightbox');
+const lbVisual = document.getElementById('lightboxVisual');
+const lbTitle = document.getElementById('lightboxTitle');
+const lbDesc = document.getElementById('lightboxDesc');
+document.querySelectorAll('.gallery-item').forEach((item) => {
+  item.addEventListener('click', () => {
+    lbVisual.style.backgroundImage = `url('${item.dataset.img}')`;
+    lbVisual.style.backgroundSize = 'cover';
+    lbVisual.style.backgroundPosition = 'center';
+    lbTitle.textContent = item.dataset.title;
+    lbDesc.textContent = item.dataset.desc;
+    lightbox.classList.add('open');
+  });
+});
+document.getElementById('lightboxClose').addEventListener('click', () => lightbox.classList.remove('open'));
+lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.classList.remove('open'); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') lightbox.classList.remove('open'); });
+
+/* ---- copy to clipboard ---- */
+const toast = document.getElementById('toast');
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const val = btn.dataset.copy;
+    navigator.clipboard?.writeText(val).then(() => showToast('Copiado: ' + val))
+      .catch(() => showToast('Não foi possível copiar'));
+  });
+});
+
+/* ---- contact form (client-side demo handling) ---- */
+const form = document.getElementById('contactForm');
+const formMsg = document.getElementById('formMsg');
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const nome = form.nome.value.trim();
+  const email = form.email.value.trim();
+  const mensagem = form.mensagem.value.trim();
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  if (!nome || !emailOk || !mensagem) {
+    formMsg.textContent = 'Preencha os campos corretamente antes de enviar.';
+    formMsg.className = 'form-msg error';
+    return;
+  }
+
+  const text = encodeURIComponent(`Olá! Meu nome é ${nome}.\nEmail: ${email}\n\n${mensagem}`);
+  formMsg.textContent = 'Tudo certo! Abrindo o WhatsApp para você concluir o envio...';
+  formMsg.className = 'form-msg success';
+  window.open(`https://wa.me/5584992688616?text=${text}`, '_blank');
+  form.reset();
+});
+
+/* ---- plan selection feedback ---- */
+document.querySelectorAll('.plan-select').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const planName = btn.closest('.plan-card').querySelector('.plan-tag').textContent.trim();
+    sessionStorage.setItem('selectedPlan', planName);
+  });
+});
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = sessionStorage.getItem('selectedPlan');
+  if (saved) {
+    const msgField = document.getElementById('mensagem');
+    if (msgField && !msgField.value) {
+      msgField.value = `Olá! Tenho interesse no plano: ${saved}.`;
+    }
+  }
+});
+</script>
+</body>
+</html>
