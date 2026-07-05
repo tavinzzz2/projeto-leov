@@ -142,48 +142,36 @@
   background:
     linear-gradient(160deg,#1c1c1c 0%,#0d0d0d 55%,#1a0505 100%);
   border:1px solid var(--border);
-  overflow:hidden;
   box-shadow:0 30px 70px rgba(0,0,0,.55);
 }
 
-.photo-frame::before{
+.photo-clip{
+  position:absolute;
+  inset:0;
+  border-radius:22px;
+  overflow:hidden;
+}
+
+.photo-clip::before{
   content:"";
   position:absolute;
   inset:0;
   z-index:2;
   pointer-events:none;
   background:
+    linear-gradient(180deg, #1c1c1c 0%, rgba(28,28,28,.55) 5%, rgba(28,28,28,0) 12%, rgba(28,28,28,0) 100%),
     radial-gradient(circle at 30% 25%, rgba(226,28,28,.22), transparent 45%),
     radial-gradient(circle at 75% 80%, rgba(255,122,26,.16), transparent 45%),
     linear-gradient(180deg, rgba(10,10,10,0) 55%, rgba(10,10,10,.65) 100%);
 }
 
 .hero-photo-bg{
-    position:absolute;
-    inset:0;
-    background-image:url('/images/hero-photo.jpeg');
-    background-repeat:no-repeat;
-
-    /* Zoom maior */
-    background-size:130%;
-
-    /* Sobe um pouco a foto */
-    background-position:center 25%;
-
-    -webkit-mask-image:linear-gradient(
-        180deg,
-        transparent 0%,
-        rgba(0,0,0,.4) 6%,
-        #000 12%,
-        #000 100%
-    );
-    mask-image:linear-gradient(
-        180deg,
-        transparent 0%,
-        rgba(0,0,0,.4) 6%,
-        #000 12%,
-        #000 100%
-    );
+  position:absolute;
+  inset:0;
+  background-image:url('/images/hero-photo.jpeg');
+  background-repeat:no-repeat;
+  background-size:115% 115%;
+  background-position:50% 61%;
 }
   .neon-bar{
     position:absolute;top:8%;right:-2px;width:6px;height:84%;border-radius:6px;
@@ -486,8 +474,10 @@
     </div>
     <div class="hero-visual reveal in reveal-delay-1">
       <div class="photo-frame">
-        <div class="hero-photo-bg" role="img" aria-label="Leov, designer gráfico e editor de imagens"></div>
-        <div class="neon-bar"></div>
+        <div class="photo-clip">
+          <div class="hero-photo-bg" role="img" aria-label="Leov, designer gráfico e editor de imagens"></div>
+          <div class="neon-bar"></div>
+        </div>
         <div class="float-chip"><span class="pulse"></span> Disponível para novos projetos</div>
         <div class="float-badge">
           <div class="dot">JL</div>
