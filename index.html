@@ -5,6 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Leov Studio Creat — Designer Gráfico e Editor</title>
 <meta name="description" content="Designer gráfico com mais de 300 clientes atendidos. Especialista em edição de fotos e posts para redes sociais.">
+
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#0a0a0a">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Leov Studio Creat">
+<meta property="og:title" content="Leov Studio Creat — Designer Gráfico e Editor">
+<meta property="og:description" content="Designer gráfico com mais de 300 clientes atendidos. Especialista em edição de fotos e posts para redes sociais.">
+<meta property="og:image" content="https://projeto-leov.vercel.app/images/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://projeto-leov.vercel.app/">
+<meta property="og:locale" content="pt_BR">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Leov Studio Creat — Designer Gráfico e Editor">
+<meta name="twitter:description" content="Designer gráfico com mais de 300 clientes atendidos. Especialista em edição de fotos e posts para redes sociais.">
+<meta name="twitter:image" content="https://projeto-leov.vercel.app/images/og-image.jpg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -138,6 +160,19 @@
       radial-gradient(ellipse 700px 500px at 92% 55%, rgba(255,122,26,.12), transparent 55%);
   }
   .hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center;}
+  .hero-glow{
+    position:absolute;top:0;left:0;z-index:1;pointer-events:none;
+    width:460px;height:460px;
+    background:radial-gradient(circle, rgba(255,122,26,.22) 0%, rgba(226,28,28,.14) 38%, transparent 72%);
+    filter:blur(6px);
+    opacity:0;
+    transition:opacity .5s ease;
+    will-change:transform;
+  }
+  .hero-glow.active{opacity:1;}
+  @media (pointer:coarse){
+    .hero-glow{display:none;}
+  }
   .hero h1{font-size:clamp(40px,5.4vw,68px);color:#fff;margin-bottom:22px;}
   .hero h1 span{color:var(--red-bright);}
   .hero p{color:var(--gray);font-size:16.5px;max-width:480px;margin-bottom:34px;}
@@ -441,6 +476,7 @@
 <section class="hero" id="home">
   <div class="hero-bg" role="img" aria-label="Leov, designer gráfico e editor de imagens"></div>
   <div class="hero-bg-fade"></div>
+  <div class="hero-glow" id="heroGlow"></div>
   <div class="container hero-grid">
     <div class="reveal in">
       <span class="eyebrow">Portfólio &amp; Serviços</span>
@@ -448,9 +484,9 @@
       <p>Designer gráfico com mais de 300 clientes atendidos, especialista em edição de fotos e posts. Formação pela MK Academy e qualidade profissional por um preço acessível.</p>
       <a href="#planos" class="btn btn-primary">Saber Mais</a>
       <div class="hero-stats">
-        <div class="hero-stat"><b>300+</b><span>Clientes atendidos</span></div>
-        <div class="hero-stat"><b>3 anos</b><span>De experiência</span></div>
-        <div class="hero-stat"><b>4.9/5</b><span>Avaliação média</span></div>
+        <div class="hero-stat"><b data-count="300" data-suffix="+">0</b><span>Clientes atendidos</span></div>
+        <div class="hero-stat"><b data-count="3" data-suffix=" anos">0</b><span>De experiência</span></div>
+        <div class="hero-stat"><b data-count="4.9" data-decimals="1" data-suffix="/5">0</b><span>Avaliação média</span></div>
       </div>
     </div>
   </div>
@@ -458,6 +494,7 @@
   <div class="float-badge reveal in reveal-delay-1">
     <div class="dot">JL</div>
     <div><b>Leov Creat</b><span>Studio de design</span></div>
+
   </div>
 </section>
 
@@ -706,6 +743,55 @@ window.addEventListener('scroll', () => {
   toTopBtn.classList.toggle('show', y > 500);
 });
 toTopBtn.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+/* ---- hero mouse glow (desktop only, skipped on touch devices) ---- */
+const heroEl = document.querySelector('.hero');
+const heroGlow = document.getElementById('heroGlow');
+const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+if (heroEl && heroGlow && !isCoarsePointer) {
+  heroEl.addEventListener('mousemove', (e) => {
+    const rect = heroEl.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    heroGlow.style.transform = `translate(${x - 230}px, ${y - 230}px)`;
+    heroGlow.classList.add('active');
+  });
+  heroEl.addEventListener('mouseleave', () => heroGlow.classList.remove('active'));
+}
+
+/* ---- animated counters (count up once when hero stats enter view) ---- */
+const countEls = document.querySelectorAll('.hero-stat b[data-count]');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function animateCount(el) {
+  const target = parseFloat(el.dataset.count);
+  const decimals = parseInt(el.dataset.decimals || '0', 10);
+  const suffix = el.dataset.suffix || '';
+  if (prefersReducedMotion) {
+    el.textContent = (decimals ? target.toFixed(decimals) : Math.round(target)) + suffix;
+    return;
+  }
+  const duration = 1400;
+  const start = performance.now();
+  function tick(now) {
+    const p = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const value = target * eased;
+    el.textContent = (decimals ? value.toFixed(decimals) : Math.round(value)) + suffix;
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+if (countEls.length) {
+  const countObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        countEls.forEach(animateCount);
+        countObserver.disconnect();
+      }
+    });
+  }, { threshold: 0.4 });
+  countObserver.observe(document.querySelector('.hero-stats'));
+}
 
 /* ---- mobile menu ---- */
 const burger = document.getElementById('burger');
